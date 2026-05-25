@@ -6,6 +6,7 @@
 .reservation-card {
   background: #fafaf8;
   padding: 48px;
+  border-radius: 2px;
 }
 
 .reservation-form {
@@ -30,6 +31,7 @@
   font-size: 0.8rem;
   color: #aaa;
   font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
 .form-group input,
@@ -59,6 +61,7 @@
   font-size: 0.85rem;
   color: #888;
   margin-top: 4px;
+  text-transform: capitalize;
 }
 
 .time-slots {
@@ -68,7 +71,7 @@
 }
 
 .time-slot {
-  padding: 6px 14px;
+  padding: 8px 16px;
   border: 1px solid #eee;
   background: none;
   color: #888;
@@ -76,6 +79,7 @@
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s;
+  border-radius: 4px;
 }
 
 .time-slot:hover {
@@ -107,6 +111,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 4px;
 }
 
 .persons-selector button:hover {
@@ -118,11 +123,13 @@
   font-size: 1.1rem;
   min-width: 24px;
   text-align: center;
+  font-weight: 500;
 }
 
 .reservation-form .btn-primary {
   align-self: flex-start;
   margin-top: 8px;
+  border-radius: 2px;
 }
 
 .reservation-form .btn-primary:disabled {
@@ -132,12 +139,19 @@
 
 .reservation-sent {
   text-align: center;
-  padding: 40px 20px;
+  padding: 60px 20px;
+}
+
+.reservation-sent .sent-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 16px;
 }
 
 .reservation-sent h2 {
   font-family: 'Inter', sans-serif;
   font-size: 1.2rem;
+  font-weight: 500;
   margin-bottom: 8px;
 }
 

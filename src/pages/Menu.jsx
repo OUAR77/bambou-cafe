@@ -2,6 +2,19 @@ import { useState } from 'react'
 import { categories } from '../data/menuData'
 import './Menu.css'
 
+const categoryIcons = {
+  desayunos: '☕',
+  brunch: '🥐',
+  cafas: '🍺',
+  combinados: '🍹',
+  chupitos: '🥃',
+  cubatas: '🥤',
+  vinos: '🍷',
+  refrescos: '🥤',
+  shishas: '🌿',
+  adicional: '➕',
+}
+
 export default function Menu() {
   const [activeCategory, setActiveCategory] = useState(categories[0].id)
 
@@ -19,6 +32,7 @@ export default function Menu() {
               className={`menu-tab ${activeCategory === cat.id ? 'active' : ''}`}
               onClick={() => setActiveCategory(cat.id)}
             >
+              <span className="menu-tab-icon">{categoryIcons[cat.id] || '•'}</span>
               {cat.name}
             </button>
           ))}
@@ -26,10 +40,10 @@ export default function Menu() {
 
         <div className="menu-items">
           {currentCategory?.items.map((item, i) => (
-            <div key={i} className="menu-item">
+            <div key={i} className="menu-item" style={{ animationDelay: `${i * 0.03}s` }}>
               <div className="menu-item-info">
                 <h3 className="menu-item-name">{item.name}</h3>
-                <p className="menu-item-desc">{item.description}</p>
+                {item.description && <p className="menu-item-desc">{item.description}</p>}
               </div>
               <span className="menu-item-price">{item.price}</span>
             </div>

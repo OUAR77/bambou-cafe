@@ -23,6 +23,11 @@
   display: block;
 }
 
+.logo {
+  display: flex;
+  align-items: center;
+}
+
 .nav {
   display: flex;
   gap: 4px;

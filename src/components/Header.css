@@ -81,20 +81,16 @@
 @media (max-width: 768px) {
   .header-inner {
     justify-content: center;
-    align-items: stretch;
     height: 80px;
-    padding: 0;
+    padding: 0 16px;
   }
 
   .logo {
     margin: 0 auto;
-    display: flex;
-    align-items: stretch;
   }
 
   .logo-img {
     height: 80px;
-    width: auto;
   }
 
   .hamburger {

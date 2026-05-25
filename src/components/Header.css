@@ -76,19 +76,18 @@
 @media (max-width: 768px) {
   .header-inner {
     justify-content: center;
-    align-items: stretch;
     padding: 0 16px;
     height: 80px;
   }
 
   .logo {
     margin: 0 auto;
-    display: flex;
-    align-items: stretch;
+    line-height: 0;
+    display: block;
   }
 
   .logo-img {
-    height: 100%;
+    height: 80px;
     width: auto;
   }
 

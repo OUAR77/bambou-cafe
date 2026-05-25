@@ -74,7 +74,7 @@ export default function Home() {
             </Link>
           </div>
           <div className="hours-decoration">
-            <span className="big-icon">☕</span>
+            <img src="/images/logo-transparent.png" alt="Bambou Café" className="hours-logo" />
           </div>
         </div>
       </section>

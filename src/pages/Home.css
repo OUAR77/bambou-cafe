@@ -156,7 +156,7 @@
 }
 
 .hours-section {
-  background: #fff;
+  background: #fafaf8;
   padding: 100px 0;
 }
 
@@ -203,10 +203,10 @@
   align-items: center;
 }
 
-.big-icon {
-  font-size: 6rem;
-  opacity: 0.06;
-  color: #1a1a1a;
+.hours-logo {
+  height: 160px;
+  width: auto;
+  opacity: 0.25;
 }
 
 @media (max-width: 768px) {

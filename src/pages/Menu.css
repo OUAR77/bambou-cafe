@@ -38,10 +38,6 @@
   font-weight: 500;
 }
 
-.menu-tab-icon {
-  font-size: 1rem;
-}
-
 .menu-items {
   display: grid;
   grid-template-columns: 1fr;

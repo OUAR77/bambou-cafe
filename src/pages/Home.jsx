@@ -59,23 +59,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section gallery-section">
-        <div className="container">
-          <h2 className="section-title">Nuestro espacio</h2>
-          <div className="gallery-grid">
-            <div className="gallery-item gallery-item-wide">
-              <img src="/images/lounge-1.jpg" alt="Bambou Café interior" />
-            </div>
-            <div className="gallery-item">
-              <img src="/images/lounge-2.jpg" alt="Bambou Café ambiente" />
-            </div>
-            <div className="gallery-item">
-              <img src="/images/lounge-3.jpg" alt="Bambou Café detalles" />
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section className="section hours-section">
         <div className="container hours-content">
           <div className="hours-info">

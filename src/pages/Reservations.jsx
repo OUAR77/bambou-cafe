@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import './Reservations.css'
 
-const MAKE_WEBHOOK_URL = 'https://hook.eu1.make.com/3ezjonrq10gunfkhuyseylma1rd5wrpv'
-
 const timeSlots = [
   '07:00', '08:00', '09:00', '10:00', '11:00', '12:00',
   '13:00', '14:00', '15:00', '16:00', '17:00', '18:00',
@@ -19,6 +17,7 @@ export default function Reservations() {
   const [phone, setPhone] = useState('')
   const [notes, setNotes] = useState('')
   const [sent, setSent] = useState(false)
+  const [error, setError] = useState(false)
 
   const dayName = new Date(date + 'T12:00:00').toLocaleDateString('es-ES', {
     weekday: 'long',
@@ -26,38 +25,34 @@ export default function Reservations() {
     month: 'long',
   })
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!time) return
 
-    const data = {
-      date,
-      time,
-      persons,
-      name,
-      phone,
-      notes,
+    setError(false)
+
+    try {
+      const res = await fetch('/.netlify/functions/send-reservation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date: dayName,
+          time,
+          persons,
+          name,
+          phone,
+          notes,
+        }),
+      })
+
+      if (!res.ok) {
+        throw new Error('Error al enviar la reserva')
+      }
+
+      setSent(true)
+    } catch {
+      setError(true)
     }
-
-    fetch(MAKE_WEBHOOK_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    }).catch(() => {})
-
-    const message = encodeURIComponent(
-      `¡Hola! Quiero hacer una reserva en Bambou Café:\n\n` +
-      `📅 Fecha: ${dayName}\n` +
-      `🕐 Hora: ${time}\n` +
-      `👥 Personas: ${persons}\n` +
-      `👤 Nombre: ${name}\n` +
-      `📞 Teléfono: ${phone}\n` +
-      `📝 Notas: ${notes || 'Ninguna'}`
-    )
-
-    window.open(`https://wa.me/34614449167?text=${message}`, '_blank')
-    setSent(true)
   }
 
   return (
@@ -69,11 +64,19 @@ export default function Reservations() {
           {sent ? (
             <div className="reservation-sent">
               <span className="sent-icon">✅</span>
-              <h2>¡Gracias por tu reserva!</h2>
-              <p>Te hemos redirigido a WhatsApp para confirmar.</p>
+              <h2>¡Reserva enviada!</h2>
+              <p>Te confirmaremos la reserva lo antes posible.</p>
               <button
                 className="btn btn-outline"
-                onClick={() => setSent(false)}
+                onClick={() => {
+                  setSent(false)
+                  setDate(today)
+                  setTime('')
+                  setPersons(2)
+                  setName('')
+                  setPhone('')
+                  setNotes('')
+                }}
               >
                 Nueva reserva
               </button>
@@ -169,12 +172,17 @@ export default function Reservations() {
                 />
               </div>
 
+              {error && (
+                <p className="reservation-error">
+                  Hubo un error al enviar la reserva. Inténtalo de nuevo o llámanos al <a href="tel:+34614449167">614 44 91 67</a>.
+                </p>
+              )}
               <button
                 type="submit"
                 className="btn btn-primary"
                 disabled={!time || !name || !phone}
               >
-                Reservar por WhatsApp
+                Reservar
               </button>
             </form>
           )}

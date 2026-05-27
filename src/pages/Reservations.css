@@ -17,8 +17,12 @@
 
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 1fr 1fr;
   gap: 24px;
+}
+
+.form-row:last-of-type {
+  grid-template-columns: 1fr 1fr 1fr;
 }
 
 .form-group {
@@ -88,6 +92,54 @@
 }
 
 .time-slot.selected {
+  background: #b8895a;
+  color: #fff;
+  border-color: #b8895a;
+}
+
+.time-slot.full {
+  opacity: 0.35;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.time-slot.full:hover {
+  border-color: #eee;
+  color: #888;
+}
+
+.time-slot small {
+  font-size: 0.6rem;
+  display: block;
+  opacity: 0.7;
+}
+
+.zone-selector {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.zone-btn {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #eee;
+  background: none;
+  color: #888;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.zone-btn:hover {
+  border-color: #b8895a;
+  color: #b8895a;
+}
+
+.zone-btn.active {
   background: #b8895a;
   color: #fff;
   border-color: #b8895a;

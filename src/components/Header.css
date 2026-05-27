@@ -81,7 +81,7 @@
 @media (max-width: 768px) {
   .header-inner {
     justify-content: center;
-    height: 70px;
+    height: 85px;
     padding: 0 16px;
   }
 
@@ -95,7 +95,7 @@
   .logo-img {
     height: auto;
     width: auto;
-    max-height: 56px;
+    max-height: 76px;
     max-width: 100%;
   }
 
@@ -113,7 +113,7 @@
 
   .nav {
     position: fixed;
-    top: 70px;
+    top: 85px;
     left: 0;
     right: 0;
     background: #fff;

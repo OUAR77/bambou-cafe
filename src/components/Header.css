@@ -81,30 +81,39 @@
 @media (max-width: 768px) {
   .header-inner {
     justify-content: center;
-    height: 100px;
+    height: 70px;
     padding: 0 16px;
   }
 
   .logo {
     margin: 0 auto;
     line-height: 0;
-    display: block;
+    display: flex;
+    align-items: center;
   }
 
   .logo-img {
-    height: 100px;
+    height: auto;
     width: auto;
+    max-height: 56px;
+    max-width: 100%;
   }
 
   .hamburger {
     display: flex;
     position: absolute;
     right: 16px;
+    padding: 8px;
+  }
+
+  .hamburger span {
+    width: 24px;
+    height: 2px;
   }
 
   .nav {
     position: fixed;
-    top: 100px;
+    top: 70px;
     left: 0;
     right: 0;
     background: #fff;

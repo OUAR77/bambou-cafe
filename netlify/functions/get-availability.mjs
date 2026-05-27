@@ -7,6 +7,13 @@ const ZONES = {
   'barra': 'Barra',
 }
 
+// true = max por reservas, false = max por personas
+const ZONE_MODE = {
+  'salon-interno': 'people',
+  'salon-externo': 'reservations',
+  'barra': 'reservations',
+}
+
 const MAX_PER_ZONE = {
   'salon-interno': 70,
   'salon-externo': 15,
@@ -29,7 +36,7 @@ export async function handler(event) {
     }
 
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/reservations?select=zone,time&date=eq.${date}&status=neq.cancelled`,
+      `${SUPABASE_URL}/rest/v1/reservations?select=zone,time,persons&date=eq.${date}&status=neq.cancelled`,
       { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
     )
 
@@ -39,21 +46,28 @@ export async function handler(event) {
 
     const rows = await res.json()
     const counts = {}
+    const peopleCounts = {}
     for (const row of rows) {
       if (!counts[row.zone]) counts[row.zone] = {}
+      if (!peopleCounts[row.zone]) peopleCounts[row.zone] = {}
       counts[row.zone][row.time] = (counts[row.zone][row.time] || 0) + 1
+      peopleCounts[row.zone][row.time] = (peopleCounts[row.zone][row.time] || 0) + (row.persons || 1)
     }
 
     const result = {}
     for (const zone of Object.keys(ZONES)) {
-      const zoneCounts = counts[zone] || {}
+      const mode = ZONE_MODE[zone]
+      const max = MAX_PER_ZONE[zone]
       result[zone] = {}
       for (const slot of timeSlots) {
-        const current = zoneCounts[slot] || 0
+        const current = mode === 'people'
+          ? (peopleCounts[zone]?.[slot] || 0)
+          : (counts[zone]?.[slot] || 0)
         result[zone][slot] = {
-          available: current < MAX_PER_ZONE[zone],
+          available: current < max,
           current,
-          max: MAX_PER_ZONE[zone],
+          max,
+          mode,
         }
       }
     }

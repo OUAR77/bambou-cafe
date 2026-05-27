@@ -157,7 +157,7 @@ export default function Reservations() {
                         className={`time-slot ${time === t ? 'selected' : ''} ${full ? 'full' : ''}`}
                         onClick={() => !full && setTime(t)}
                         disabled={full}
-                        title={full ? `Completo (${slot.current}/${slot.max})` : t}
+                                title={full ? `Completo (${slot.current}/${slot.max} ${slot.mode === 'people' ? 'personas' : 'reservas'})` : t}
                       >
                         {t}
                         {full && <small> lleno</small>}

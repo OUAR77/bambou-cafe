@@ -3,6 +3,12 @@ const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID
 
+const ZONE_MODE = {
+  'salon-interno': 'people',
+  'salon-externo': 'reservations',
+  'barra': 'reservations',
+}
+
 const MAX_PER_ZONE = {
   'salon-interno': 70,
   'salon-externo': 15,
@@ -35,7 +41,7 @@ export async function handler(event) {
     }
 
     const countRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/reservations?select=id&date=eq.${date}&time=eq.${time}&zone=eq.${zone}&status=neq.cancelled`,
+      `${SUPABASE_URL}/rest/v1/reservations?select=persons,id&date=eq.${date}&time=eq.${time}&zone=eq.${zone}&status=neq.cancelled`,
       { headers: HEADERS }
     )
 
@@ -45,12 +51,20 @@ export async function handler(event) {
 
     const existing = await countRes.json()
     const max = MAX_PER_ZONE[zone] || 3
+    const mode = ZONE_MODE[zone]
 
-    if (existing.length >= max) {
+    let current
+    if (mode === 'people') {
+      current = existing.reduce((sum, r) => sum + (r.persons || 1), 0)
+    } else {
+      current = existing.length
+    }
+
+    if (current + (data.persons || 1) > max) {
       return {
         statusCode: 409,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Slot full', current: existing.length, max }),
+        body: JSON.stringify({ error: 'Slot full', current, max, mode }),
       }
     }
 

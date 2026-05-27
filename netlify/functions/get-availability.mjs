@@ -1,5 +1,5 @@
-import { readFileSync, writeFileSync, existsSync } from 'fs'
-import { join } from 'path'
+const SUPABASE_URL = process.env.SUPABASE_URL
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY
 
 const ZONES = {
   'salon-interno': 'Salón Interno',
@@ -19,17 +19,6 @@ const timeSlots = [
   '19:00', '20:00', '21:00', '22:00',
 ]
 
-const DATA_PATH = join('/tmp', 'reservas-data.json')
-
-function readCounts() {
-  try {
-    if (existsSync(DATA_PATH)) {
-      return JSON.parse(readFileSync(DATA_PATH, 'utf-8'))
-    }
-  } catch {}
-  return {}
-}
-
 export async function handler(event) {
   try {
     const params = new URL(event.rawUrl).searchParams
@@ -39,12 +28,25 @@ export async function handler(event) {
       return { statusCode: 400, body: 'Missing date param' }
     }
 
-    const counts = readCounts()
-    const dateCounts = counts[date] || {}
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/reservations?select=zone,time&date=eq.${date}&status=neq.cancelled`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    )
+
+    if (!res.ok) {
+      return { statusCode: 500, body: 'DB error' }
+    }
+
+    const rows = await res.json()
+    const counts = {}
+    for (const row of rows) {
+      if (!counts[row.zone]) counts[row.zone] = {}
+      counts[row.zone][row.time] = (counts[row.zone][row.time] || 0) + 1
+    }
 
     const result = {}
     for (const zone of Object.keys(ZONES)) {
-      const zoneCounts = dateCounts[zone] || {}
+      const zoneCounts = counts[zone] || {}
       result[zone] = {}
       for (const slot of timeSlots) {
         const current = zoneCounts[slot] || 0

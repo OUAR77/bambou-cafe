@@ -1,5 +1,7 @@
-import { readFileSync, writeFileSync, existsSync } from 'fs'
-import { join } from 'path'
+const SUPABASE_URL = process.env.SUPABASE_URL
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY
+const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID
 
 const MAX_PER_ZONE = {
   'salon-interno': 15,
@@ -13,27 +15,11 @@ const ZONE_NAMES = {
   'barra': 'Barra',
 }
 
-const DATA_PATH = join('/tmp', 'reservas-data.json')
-
-function readCounts() {
-  try {
-    if (existsSync(DATA_PATH)) {
-      return JSON.parse(readFileSync(DATA_PATH, 'utf-8'))
-    }
-  } catch {}
-  return {}
-}
-
-function saveCounts(counts) {
-  writeFileSync(DATA_PATH, JSON.stringify(counts))
-}
+const HEADERS = { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' }
 
 export async function handler(event) {
   try {
-    const token = process.env.TELEGRAM_BOT_TOKEN
-    const chatId = process.env.TELEGRAM_CHAT_ID
-
-    if (!token || !chatId) {
+    if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) {
       return { statusCode: 500, body: 'Telegram not configured' }
     }
 
@@ -48,23 +34,43 @@ export async function handler(event) {
       return { statusCode: 400, body: 'Missing required fields' }
     }
 
-    const counts = readCounts()
-    if (!counts[date]) counts[date] = {}
-    if (!counts[date][zone]) counts[date][zone] = {}
+    const countRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/reservations?select=id&date=eq.${date}&time=eq.${time}&zone=eq.${zone}&status=neq.cancelled`,
+      { headers: HEADERS }
+    )
 
-    const current = counts[date][zone][time] || 0
+    if (!countRes.ok) {
+      return { statusCode: 500, body: 'DB error' }
+    }
+
+    const existing = await countRes.json()
     const max = MAX_PER_ZONE[zone] || 3
 
-    if (current >= max) {
+    if (existing.length >= max) {
       return {
         statusCode: 409,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Slot full', current, max }),
+        body: JSON.stringify({ error: 'Slot full', current: existing.length, max }),
       }
     }
 
-    counts[date][zone][time] = current + 1
-    saveCounts(counts)
+    const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/reservations`, {
+      method: 'POST',
+      headers: { ...HEADERS, Prefer: 'return=representation' },
+      body: JSON.stringify({
+        date,
+        time,
+        zone,
+        persons: data.persons,
+        name: data.name,
+        phone: data.phone,
+        notes: data.notes || '',
+      }),
+    })
+
+    if (!insertRes.ok) {
+      return { statusCode: 500, body: 'Insert error' }
+    }
 
     const lines = [
       '📋 Nueva reserva - Bambou Café',
@@ -80,26 +86,18 @@ export async function handler(event) {
       lines.push(`📝 Notas: ${data.notes}`)
     }
 
-    const url = `https://api.telegram.org/bot${token}/sendMessage`
-
-    const res = await fetch(url, {
+    const telegramRes = await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: lines.join('\n'),
-      }),
+      body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: lines.join('\n') }),
     })
 
-    if (!res.ok) {
-      const err = await res.text()
+    if (!telegramRes.ok) {
+      const err = await telegramRes.text()
       return { statusCode: 500, body: `Telegram error: ${err}` }
     }
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ ok: true }),
-    }
+    return { statusCode: 200, body: JSON.stringify({ ok: true }) }
   } catch (err) {
     return { statusCode: 500, body: err.message }
   }

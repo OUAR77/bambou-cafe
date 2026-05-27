@@ -8,9 +8,9 @@ const ZONES = {
 }
 
 const MAX_PER_ZONE = {
-  'salon-interno': 3,
-  'salon-externo': 3,
-  'barra': 2,
+  'salon-interno': 15,
+  'salon-externo': 15,
+  'barra': 8,
 }
 
 const timeSlots = [

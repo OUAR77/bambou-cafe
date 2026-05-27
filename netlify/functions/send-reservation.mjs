@@ -1,9 +1,31 @@
-import { getStore } from '@netlify/blobs'
+import { readFileSync, writeFileSync, existsSync } from 'fs'
+import { join } from 'path'
 
 const MAX_PER_ZONE = {
   'salon-interno': 3,
   'salon-externo': 3,
   'barra': 2,
+}
+
+const ZONE_NAMES = {
+  'salon-interno': 'Salón Interno',
+  'salon-externo': 'Salón Externo',
+  'barra': 'Barra',
+}
+
+const DATA_PATH = join('/tmp', 'reservas-data.json')
+
+function readCounts() {
+  try {
+    if (existsSync(DATA_PATH)) {
+      return JSON.parse(readFileSync(DATA_PATH, 'utf-8'))
+    }
+  } catch {}
+  return {}
+}
+
+function saveCounts(counts) {
+  writeFileSync(DATA_PATH, JSON.stringify(counts))
 }
 
 export async function handler(event) {
@@ -26,33 +48,28 @@ export async function handler(event) {
       return { statusCode: 400, body: 'Missing required fields' }
     }
 
-    const store = getStore('reservas')
-    const storeKey = `counts:${date}`
-    const raw = await store.get(storeKey)
-    const counts = raw ? JSON.parse(raw) : {}
+    const counts = readCounts()
+    if (!counts[date]) counts[date] = {}
+    if (!counts[date][zone]) counts[date][zone] = {}
 
-    const zoneCounts = counts[zone] || {}
-    const current = zoneCounts[time] || 0
+    const current = counts[date][zone][time] || 0
     const max = MAX_PER_ZONE[zone] || 3
 
     if (current >= max) {
-      return { statusCode: 409, body: 'Slot full' }
+      return {
+        statusCode: 409,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Slot full', current, max }),
+      }
     }
 
-    zoneCounts[time] = current + 1
-    counts[zone] = zoneCounts
-    await store.set(storeKey, JSON.stringify(counts))
-
-    const zoneNames = {
-      'salon-interno': 'Salón Interno',
-      'salon-externo': 'Salón Externo',
-      'barra': 'Barra',
-    }
+    counts[date][zone][time] = current + 1
+    saveCounts(counts)
 
     const lines = [
       '📋 Nueva reserva - Bambou Café',
       '',
-      `📍 Zona: ${zoneNames[zone] || zone}`,
+      `📍 Zona: ${ZONE_NAMES[zone] || zone}`,
       `📅 Fecha: ${date}`,
       `🕐 Hora: ${time}`,
       `👥 Personas: ${data.persons}`,

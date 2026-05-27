@@ -1,4 +1,5 @@
-import { getStore } from '@netlify/blobs'
+import { readFileSync, writeFileSync, existsSync } from 'fs'
+import { join } from 'path'
 
 const ZONES = {
   'salon-interno': 'Salón Interno',
@@ -18,6 +19,17 @@ const timeSlots = [
   '19:00', '20:00', '21:00', '22:00',
 ]
 
+const DATA_PATH = join('/tmp', 'reservas-data.json')
+
+function readCounts() {
+  try {
+    if (existsSync(DATA_PATH)) {
+      return JSON.parse(readFileSync(DATA_PATH, 'utf-8'))
+    }
+  } catch {}
+  return {}
+}
+
 export async function handler(event) {
   try {
     const params = new URL(event.rawUrl).searchParams
@@ -27,14 +39,12 @@ export async function handler(event) {
       return { statusCode: 400, body: 'Missing date param' }
     }
 
-    const store = getStore('reservas')
-    const storeKey = `counts:${date}`
-    const raw = await store.get(storeKey)
-    const counts = raw ? JSON.parse(raw) : {}
+    const counts = readCounts()
+    const dateCounts = counts[date] || {}
 
     const result = {}
     for (const zone of Object.keys(ZONES)) {
-      const zoneCounts = counts[zone] || {}
+      const zoneCounts = dateCounts[zone] || {}
       result[zone] = {}
       for (const slot of timeSlots) {
         const current = zoneCounts[slot] || 0

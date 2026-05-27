@@ -10,14 +10,14 @@ const ZONES = {
 // true = max por reservas, false = max por personas
 const ZONE_MODE = {
   'salon-interno': 'people',
-  'salon-externo': 'reservations',
-  'barra': 'reservations',
+  'salon-externo': 'people',
+  'barra': 'people',
 }
 
 const MAX_PER_ZONE = {
   'salon-interno': 70,
-  'salon-externo': 15,
-  'barra': 8,
+  'salon-externo': 40,
+  'barra': 20,
 }
 
 const timeSlots = [

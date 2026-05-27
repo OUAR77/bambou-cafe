@@ -5,14 +5,14 @@ const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID
 
 const ZONE_MODE = {
   'salon-interno': 'people',
-  'salon-externo': 'reservations',
-  'barra': 'reservations',
+  'salon-externo': 'people',
+  'barra': 'people',
 }
 
 const MAX_PER_ZONE = {
   'salon-interno': 70,
-  'salon-externo': 15,
-  'barra': 8,
+  'salon-externo': 40,
+  'barra': 20,
 }
 
 const ZONE_NAMES = {

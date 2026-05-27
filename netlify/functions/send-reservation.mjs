@@ -4,7 +4,7 @@ const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID
 
 const MAX_PER_ZONE = {
-  'salon-interno': 15,
+  'salon-interno': 70,
   'salon-externo': 15,
   'barra': 8,
 }

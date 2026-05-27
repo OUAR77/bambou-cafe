@@ -81,21 +81,19 @@
 @media (max-width: 768px) {
   .header-inner {
     justify-content: center;
-    height: 85px;
+    height: 80px;
     padding: 0 16px;
   }
 
   .logo {
-    margin: 0 auto;
-    line-height: 0;
     display: flex;
     align-items: center;
+    line-height: 0;
   }
 
   .logo-img {
-    height: auto;
+    height: 72px;
     width: auto;
-    max-height: 76px;
     max-width: 100%;
   }
 
@@ -113,7 +111,7 @@
 
   .nav {
     position: fixed;
-    top: 85px;
+    top: 80px;
     left: 0;
     right: 0;
     background: #fff;
